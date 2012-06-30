@@ -1,0 +1,7 @@
+https://github.com/pallix/lacij
+
+http://stackoverflow.com/questions/1967987/how-to-generate-ast-from-java-source-code
+http://www.antlr.org/works/index.html
+
+http://www.igvita.com/2008/12/11/ruby-ast-for-fun-and-profit/
+http://rubyforge.org/projects/parsetree/
