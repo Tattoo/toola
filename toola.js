@@ -8,44 +8,55 @@ function err( msg ){
   process.exit( 1 );
 }
 
-function checkIfValidPath( error, stats ){
-  if ( error ){
-    err( error );
-  }
+function start( filePath ){
 
-  if ( !stats.isDirectory() ){
-    err( "not a directory" );
-  }
+  fs.stat( filePath, function( error, stats ){
+
+    if ( error ){
+      err( error );
+    }
+
+    if ( stats.isDirectory() ){
+      return traverse( filePath );
+    }
+
+    read( filePath );
+  });
+}
+
+function read( file ){
+  var content = fs.readFileSync( file, "utf-8" ); 
+  burrito( burrito.parse( content, false, true ), function( node ){
+    var name = node.name;
+    var src = node.source();
+    console.log( name + " " + src );
+  });
 }
 
 function traverse( filePath ){  
-
   var files = fs.readdirSync( filePath );
 
-  files.forEach(function( file ){
-    
-    var currentFile = path.join( filePath + "/" + file );
+  fs.readdir( filePath, function( files ){
+    files.forEach(function( file ){
+      var currentFile = path.join( filePath + "/" + file );
 
-    if ( fs.statSync( currentFile ).isDirectory() ){
-      traverse( currentFile );
-    } 
+      if ( fs.statSync( currentFile ).isDirectory() ){
+        traverse( currentFile );
+      } 
 
-    var content = fs.readFileSync( currentFile, "utf-8" ); 
-    burrito( burrito.parse( content, false, true ), function( node ){
-      var name = node.name;
-      var src = node.source();
-      console.log( name + " " + src );
+      read( currentFile );
     });
   });
-
 }
 
 if ( process.argv.length < 3 ){
   err( "give path" );
 }
 
-var filePath = fs.realpathSync( process.argv[ 2 ] );
+fs.realpath( process.argv[ 2 ], function( error, path ){
+  if ( error ){
+    err( error );
+  }
 
-fs.stat( filePath, checkIfValidPath );
-
-traverse( filePath );
+  start( filePath );
+});
